@@ -1,8 +1,14 @@
-# Gemini for Android
+<p align="center">
+  <img src="app/src/main/ic_launcher-playstore.png" width="128" height="128" />
+</p>
 
-[![Android API](https://img.shields.io/badge/API-23%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=23)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Platform](https://img.shields.io/badge/Platform-Android-blue.svg)](https://www.android.com/)
+# <p align="center">Gemini</p>
+
+<p align="center">
+  <a href="https://android-arsenal.com/api?level=23"><img src="https://img.shields.io/badge/API-23%2B-brightgreen.svg?style=flat" alt="Android API" /></a>
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" /></a>
+  <a href="https://www.android.com/"><img src="https://img.shields.io/badge/Platform-Android-blue.svg" alt="Platform" /></a>
+</p>
 
 A premium, high-performance Android wrapper for **Google Gemini**, meticulously engineered with **Jetpack Compose**. This project aims to bridge the gap between web and native by providing a fluid, distraction-free AI assistant experience.
 
@@ -65,5 +71,5 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ---
 <p align="center">
-  Developed with ❤️ for the Android Community
+  Developed with ❤️ by Lifer_Lighdow
 </p>
