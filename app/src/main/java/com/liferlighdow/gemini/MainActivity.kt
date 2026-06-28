@@ -26,11 +26,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -44,6 +45,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -91,6 +94,9 @@ fun GeminiWebViewScreen(onOpenFileChooser: (ValueCallback<Array<Uri>>) -> Unit) 
     var isError by remember { mutableStateOf(false) }
     var isRetrying by remember { mutableStateOf(false) }
 
+    val density = LocalDensity.current
+    val imeBottom = WindowInsets.ime.getBottom(density)
+
     BackHandler(enabled = canGoBack && !isError) {
         webView?.goBack()
     }
@@ -103,11 +109,14 @@ fun GeminiWebViewScreen(onOpenFileChooser: (ValueCallback<Array<Uri>>) -> Unit) 
             .fillMaxSize()
             .padding(paddingValues)
             .consumeWindowInsets(paddingValues)
-            .imePadding()
             .background(Color.Black)
         ) {
             AndroidView(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer {
+                        translationY = -imeBottom.toFloat()
+                    },
                 factory = { ctx ->
                     WebView(ctx).apply {
                         setLayerType(android.view.View.LAYER_TYPE_HARDWARE, null)
