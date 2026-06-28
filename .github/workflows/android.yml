@@ -7,6 +7,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
     - uses: actions/checkout@v4
@@ -50,3 +52,20 @@ jobs:
           ${{ steps.sign_app.outputs.signedReleaseFile }}
           app/build/outputs/apk/release/*-unsigned.apk
           app/build/outputs/apk/release/*.apk
+
+    - name: Update Latest Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: latest
+        name: Latest Build
+        body: |
+          This is an automated build of the latest version from the main branch.
+          Last updated: ${{ github.event.head_commit.timestamp }}
+          Commit: ${{ github.sha }}
+        files: |
+          ${{ steps.sign_app.outputs.signedReleaseFile }}
+          app/build/outputs/apk/release/*-unsigned.apk
+          app/build/outputs/apk/release/*.apk
+        prerelease: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
