@@ -30,6 +30,12 @@ jobs:
     - name: Build Release APK
       run: ./gradlew assembleRelease
 
+    - name: Get Version Name
+      id: get_version
+      run: |
+        VERSION_NAME=$(grep "versionName =" app/build.gradle.kts | sed -E 's/.*"([^"]+)".*/\1/')
+        echo "version=$VERSION_NAME" >> $GITHUB_OUTPUT
+
     - name: Sign Release APK
       if: github.event_name == 'push' && env.SIGNING_KEY != null
       uses: r0adkll/sign-android-release@v1
@@ -53,19 +59,20 @@ jobs:
           app/build/outputs/apk/release/*-unsigned.apk
           app/build/outputs/apk/release/*.apk
 
-    - name: Update Latest Release
+    - name: Create or Update Release
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: latest
-        name: Latest Build
+        tag_name: v${{ steps.get_version.outputs.version }}
+        name: Release v${{ steps.get_version.outputs.version }}
         body: |
-          This is an automated build of the latest version from the main branch.
+          This is an automated build.
+          Version: ${{ steps.get_version.outputs.version }}
           Last updated: ${{ github.event.head_commit.timestamp }}
           Commit: ${{ github.sha }}
         files: |
           ${{ steps.sign_app.outputs.signedReleaseFile }}
           app/build/outputs/apk/release/*-unsigned.apk
           app/build/outputs/apk/release/*.apk
-        prerelease: true
+        prerelease: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
