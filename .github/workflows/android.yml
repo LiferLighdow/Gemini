@@ -18,13 +18,16 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
+    - name: Install Android Build Tools
+      run: |
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "build-tools;34.0.0"
+
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
     - name: Build Release APK
       run: ./gradlew assembleRelease
 
-    # 這是簽署步驟。如果你還沒有設定 Secrets，這步會跳過或失敗，但你可以先看怎麼設定。
     - name: Sign Release APK
       if: github.event_name == 'push' && env.SIGNING_KEY != null
       uses: r0adkll/sign-android-release@v1
@@ -35,6 +38,7 @@ jobs:
         alias: ${{ secrets.ALIAS }}
         keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
         keyPassword: ${{ secrets.KEY_PASSWORD }}
+        buildToolsVersion: "34.0.0"
       env:
         SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
 
