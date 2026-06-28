@@ -1,40 +1,69 @@
-# Gemini Android
+# Gemini for Android
 
-A lightweight, high-performance Android wrapper for Google Gemini, built with modern Jetpack Compose.
+[![Android API](https://img.shields.io/badge/API-23%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=23)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Platform](https://img.shields.io/badge/Platform-Android-blue.svg)](https://www.android.com/)
 
-## 🚀 Features
+A premium, high-performance Android wrapper for **Google Gemini**, meticulously engineered with **Jetpack Compose**. This project aims to bridge the gap between web and native by providing a fluid, distraction-free AI assistant experience.
 
-- **Native Feel**: Custom CSS injection eliminates web-style selection highlights and "tap-to-zoom" glitches for a solid, native-app touch response.
-- **Optimized Performance**: Hardware acceleration is forced on for the WebView layer, ensuring smooth 60fps scrolling through long conversations.
-- **Graceful Error Handling**: Includes a custom native "No Connection" screen with an intelligent retry mechanism. The error overlay stays active until the page is fully reloaded, preventing UI "flicker".
-- **Persistent Sessions**: Optimized Cookie and DOM storage management ensures you stay logged into your Google account even after closing the app.
-- **Premium Aesthetic**: 
-  - Fully immersive edge-to-edge layout.
-  - System status and navigation bars are color-matched to a deep black.
-  - High-end typography and layout spacing.
-- **Ultra-Lightweight**: 
-  - ProGuard/R8 enabled for deep code minification.
-  - Resource filtering limits the APK to essential assets only.
-- **Dark Mode Sync**: Automatically detects and applies system-wide dark mode settings to the Gemini interface.
+---
+
+## 💎 Engineering Highlights
+
+### ⚡ Native-Grade Interaction
+Most WebView apps feel like "websites in a box." This project fixes that through:
+*   **Touch Optimization**: Custom CSS injection layers that eliminate web-typical "blue selection highlights" and tap-to-zoom glitches, providing immediate touch response.
+*   **Hardware Acceleration**: Explicitly forced GPU rendering for the WebView layer, ensuring 60fps scrolling through long conversations.
+*   **Edge-to-Edge Immersion**: Fully utilizes the modern Android windowing system, extending content behind system bars for a seamless "infinity screen" feel.
+
+### 🛡️ Resilience & Persistence
+*   **Stateful Error Handling**: Features a native "No Connection" interceptor. Unlike standard browsers that show a white screen on failure, this app presents a professional native recovery interface with intelligent retry logic.
+*   **Persistent Sessions**: Implements aggressive Cookie & DOM Storage synchronization. By forcing memory-to-disk "flushing," your login state remains intact even after deep system hibernation or app kills.
+
+### 🎨 Premium Aesthetic
+*   **System-Wide Dark Mode**: Automatic theme detection that synchronizes the WebView rendering with your Android system settings.
+*   **Ultra-Lightweight Footprint**: Optimized with **R8/ProGuard** and binary resource filtering. Only essential code and English assets are bundled, resulting in a minimal APK size without sacrificing functionality.
+
+---
 
 ## 🛠 Tech Stack
 
-- **Framework**: Jetpack Compose
-- **Language**: Kotlin
-- **WebView Architecture**: Hybrid bridge with lifecycle-aware state management.
-- **Build System**: Gradle (Kotlin DSL)
-- **Minimum Requirements**: Android 6.0 (API 23+)
+- **UI Framework**: Jetpack Compose (Modern Declarative UI)
+- **Language**: Kotlin 2.0.21
+- **Architecture**: Single-Activity, Life-cycle aware Hybrid Bridge
+- **Build System**: Gradle Kotlin DSL
+- **Compatibility**: Android 6.0 (API 23) and above
 
-## 📦 How to Build
+---
 
-1. Clone the repository.
-2. Open in Android Studio (Ladybug or newer recommended).
-3. Connect your device or emulator.
-4. Click `Run` or execute `./gradlew assembleRelease`.
+## 🚀 Getting Started
+
+### Prerequisites
+*   Android Studio Ladybug (or newer)
+*   Android SDK 35/36 installed
+
+### Build Instructions
+1.  Clone the repository:
+    ```bash
+    git clone https://github.com/LiferLighdow/Gemini.git
+    ```
+2.  Open the project in Android Studio.
+3.  Ensure your device has the latest **Android System WebView** updated via Play Store for the best CSS support.
+4.  Run the `:app:assembleRelease` task to generate a minified APK.
+
+---
 
 ## 📜 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Distributed under the MIT License. See `LICENSE` for more information.
 
 ---
-*Disclaimer: This is an unofficial wrapper app for Google Gemini. All rights to the Gemini service belong to Google.*
+
+## ⚖️ Disclaimer
+
+*This is an unofficial wrapper application. All rights to the Gemini service, branding, and assets belong to Google. This project is intended for educational and personal use only.*
+
+---
+<p align="center">
+  Developed with ❤️ for the Android Community
+</p>
