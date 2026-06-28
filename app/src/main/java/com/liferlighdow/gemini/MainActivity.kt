@@ -26,9 +26,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -100,6 +102,8 @@ fun GeminiWebViewScreen(onOpenFileChooser: (ValueCallback<Array<Uri>>) -> Unit) 
         Box(modifier = Modifier
             .fillMaxSize()
             .padding(paddingValues)
+            .consumeWindowInsets(paddingValues)
+            .imePadding()
             .background(Color.Black)
         ) {
             AndroidView(
