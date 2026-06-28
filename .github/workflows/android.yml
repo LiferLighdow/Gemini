@@ -20,7 +20,7 @@ jobs:
 
     - name: Install Android Build Tools
       run: |
-        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "build-tools;34.0.0"
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "build-tools;29.0.3"
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
@@ -38,7 +38,6 @@ jobs:
         alias: ${{ secrets.ALIAS }}
         keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
         keyPassword: ${{ secrets.KEY_PASSWORD }}
-        buildToolsVersion: "34.0.0"
       env:
         SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
 
