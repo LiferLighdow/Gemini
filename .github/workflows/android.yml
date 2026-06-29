@@ -53,11 +53,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: app-release
-        # 如果簽署成功，上傳簽署後的檔案；否則上傳未簽署的檔案
-        path: |
-          ${{ steps.sign_app.outputs.signedReleaseFile }}
-          app/build/outputs/apk/release/*-unsigned.apk
-          app/build/outputs/apk/release/*.apk
+        path: app/build/outputs/apk/release/*.apk
 
     - name: Create or Update Release
       uses: softprops/action-gh-release@v2
@@ -65,14 +61,11 @@ jobs:
         tag_name: v${{ steps.get_version.outputs.version }}
         name: Release v${{ steps.get_version.outputs.version }}
         body: |
-          This is an automated build.
-          Version: ${{ steps.get_version.outputs.version }}
-          Last updated: ${{ github.event.head_commit.timestamp }}
+          Automated release for version ${{ steps.get_version.outputs.version }}
+          
           Commit: ${{ github.sha }}
-        files: |
-          ${{ steps.sign_app.outputs.signedReleaseFile }}
-          app/build/outputs/apk/release/*-unsigned.apk
-          app/build/outputs/apk/release/*.apk
+        files: app/build/outputs/apk/release/*.apk
         prerelease: false
+        make_latest: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
