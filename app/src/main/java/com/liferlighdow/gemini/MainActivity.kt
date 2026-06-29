@@ -34,6 +34,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
@@ -45,8 +47,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -55,6 +55,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -67,7 +68,7 @@ class MainActivity : ComponentActivity() {
     private var filePathCallback: ValueCallback<Array<Uri>>? = null
 
     private val fileChooserLauncher = registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
-        filePathCallback?.onReceiveValue(uris?.toTypedArray())
+        filePathCallback?.onReceiveValue(uris.toTypedArray())
         filePathCallback = null
     }
 
@@ -96,27 +97,48 @@ fun GeminiWebViewScreen(onOpenFileChooser: (ValueCallback<Array<Uri>>) -> Unit) 
 
     val density = LocalDensity.current
     val imeBottom = WindowInsets.ime.getBottom(density)
+    var maxImeHeight by remember { mutableIntStateOf(0) }
+
+    // 紀錄鍵盤出現過的最大高度
+    if (imeBottom > maxImeHeight) {
+        maxImeHeight = imeBottom
+    }
+
+    // 當偵測到鍵盤正在升起時（imeBottom > 0），
+    // 立即使用 maxImeHeight 或當前高度，跳過中間的動畫過程。
+    val instantImePadding = if (imeBottom > 0) {
+        if (maxImeHeight > 0) maxImeHeight else imeBottom
+    } else {
+        0
+    }
 
     BackHandler(enabled = canGoBack && !isError) {
         webView?.goBack()
     }
 
+    val layoutDirection = androidx.compose.ui.platform.LocalLayoutDirection.current
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = Color.Black
     ) { paddingValues: PaddingValues ->
+        val systemBottomPadding = paddingValues.calculateBottomPadding()
+        val imeBottomPadding = with(density) { instantImePadding.toDp() }
+        val finalBottomPadding = if (imeBottomPadding > systemBottomPadding) imeBottomPadding else systemBottomPadding
+
         Box(modifier = Modifier
             .fillMaxSize()
-            .padding(paddingValues)
+            .padding(
+                start = paddingValues.calculateStartPadding(layoutDirection),
+                top = paddingValues.calculateTopPadding(),
+                end = paddingValues.calculateEndPadding(layoutDirection),
+                bottom = finalBottomPadding
+            )
             .consumeWindowInsets(paddingValues)
             .background(Color.Black)
         ) {
             AndroidView(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .graphicsLayer {
-                        translationY = -imeBottom.toFloat()
-                    },
+                modifier = Modifier.fillMaxSize(),
                 factory = { ctx ->
                     WebView(ctx).apply {
                         setLayerType(android.view.View.LAYER_TYPE_HARDWARE, null)
