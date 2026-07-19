@@ -33,9 +33,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
@@ -95,46 +94,19 @@ fun GeminiWebViewScreen(onOpenFileChooser: (ValueCallback<Array<Uri>>) -> Unit) 
     var isError by remember { mutableStateOf(false) }
     var isRetrying by remember { mutableStateOf(false) }
 
-    val density = LocalDensity.current
-    val imeBottom = WindowInsets.ime.getBottom(density)
-    var maxImeHeight by remember { mutableIntStateOf(0) }
-
-    // 紀錄鍵盤出現過的最大高度
-    if (imeBottom > maxImeHeight) {
-        maxImeHeight = imeBottom
-    }
-
-    // 當偵測到鍵盤正在升起時（imeBottom > 0），
-    // 立即使用 maxImeHeight 或當前高度，跳過中間的動畫過程。
-    val instantImePadding = if (imeBottom > 0) {
-        if (maxImeHeight > 0) maxImeHeight else imeBottom
-    } else {
-        0
-    }
-
     BackHandler(enabled = canGoBack && !isError) {
         webView?.goBack()
     }
 
-    val layoutDirection = androidx.compose.ui.platform.LocalLayoutDirection.current
-
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        containerColor = Color.Black
-    ) { paddingValues: PaddingValues ->
-        val systemBottomPadding = paddingValues.calculateBottomPadding()
-        val imeBottomPadding = with(density) { instantImePadding.toDp() }
-        val finalBottomPadding = if (imeBottomPadding > systemBottomPadding) imeBottomPadding else systemBottomPadding
-
+        containerColor = Color.Black,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)
+    ) { innerPadding ->
         Box(modifier = Modifier
             .fillMaxSize()
-            .padding(
-                start = paddingValues.calculateStartPadding(layoutDirection),
-                top = paddingValues.calculateTopPadding(),
-                end = paddingValues.calculateEndPadding(layoutDirection),
-                bottom = finalBottomPadding
-            )
-            .consumeWindowInsets(paddingValues)
+            .padding(innerPadding)
+            .safeDrawingPadding()
             .background(Color.Black)
         ) {
             AndroidView(
@@ -163,11 +135,6 @@ fun GeminiWebViewScreen(onOpenFileChooser: (ValueCallback<Array<Uri>>) -> Unit) 
                                 }
                             }
 
-                            override fun onPageStarted(view: WebView?, url: String?, favicon: android.graphics.Bitmap?) {
-                                super.onPageStarted(view, url, favicon)
-                                // We don't reset isError here to keep the mask visible during retry
-                            }
-
                             override fun onReceivedError(
                                 view: WebView?,
                                 request: WebResourceRequest?,
@@ -183,7 +150,6 @@ fun GeminiWebViewScreen(onOpenFileChooser: (ValueCallback<Array<Uri>>) -> Unit) 
                                 super.onPageFinished(view, url)
                                 CookieManager.getInstance().flush()
                                 
-                                // If the page finished without a main-frame error, hide the error screen
                                 if (isRetrying || !isError) {
                                     isError = false
                                     isRetrying = false
@@ -221,7 +187,11 @@ fun GeminiWebViewScreen(onOpenFileChooser: (ValueCallback<Array<Uri>>) -> Unit) 
                             cacheMode = WebSettings.LOAD_DEFAULT
                             useWideViewPort = true
                             loadWithOverviewMode = true
-                            userAgentString = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
+                            setSupportZoom(false)
+                            builtInZoomControls = false
+                            displayZoomControls = false
+                            textZoom = 100
+                            userAgentString = "Mozilla/5.0 (Linux; Android 13; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
                             
                             val nightModeFlags = ctx.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
                             if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
@@ -237,7 +207,7 @@ fun GeminiWebViewScreen(onOpenFileChooser: (ValueCallback<Array<Uri>>) -> Unit) 
                     }
                 },
                 update = {
-                    webView = it
+                    // State is maintained in the factory block
                 }
             )
 
@@ -342,26 +312,32 @@ private fun injectNativeBehaviors(webView: WebView?) {
         }
         body, html {
             margin: 0;
-            padding: 0;
+            padding: 0 !important;
             height: 100%;
             overflow-x: hidden;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
         }
-    """.trimIndent().replace("\n", "")
+    """.trimIndent().replace("\n", " ")
 
     val script = """
         (function() {
-            var parent = document.getElementsByTagName('head').item(0);
+            if (document.getElementById('gemini-native-style')) return;
             var style = document.createElement('style');
+            style.id = 'gemini-native-style';
             style.type = 'text/css';
             style.innerHTML = '$css';
-            parent.appendChild(style);
+            document.head.appendChild(style);
 
-            var meta = document.createElement('meta');
-            meta.name = 'viewport';
-            meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
-            document.getElementsByTagName('head')[0].appendChild(meta);
+            var meta = document.querySelector('meta[name="viewport"]');
+            if (meta) {
+                meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
+            } else {
+                meta = document.createElement('meta');
+                meta.name = 'viewport';
+                meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
+                document.head.appendChild(meta);
+            }
         })();
     """.trimIndent()
     webView?.evaluateJavascript(script, null)
